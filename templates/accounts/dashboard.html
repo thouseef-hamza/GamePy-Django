@@ -1,0 +1,51 @@
+{% extends 'products/base.html' %}
+{% load static %}
+{% block content %}
+<!-- ========================= SECTION CONTENT ========================= -->
+<div class="container">
+    <div class="row">
+    {% include 'includes/dashboard_sidebar.html' %}
+    <main class="col-md-9">
+        <article class="card bg-dark">
+        <header class="card-header bg-dark text-white">
+            <strong class="d-inline-block mr-3">Logged in as</strong>
+            <span>{{user.full_name}}</span>
+        </header>
+        <div class="card-body">
+            <div class="row"> 
+                <div class="col-6">
+                    <div class="card bg-dark" style="border-color:#A32CC4;">
+                        <div class="card-body">
+                            <h5 class="card-title text-white">Total Orders</h5>
+                            <h4 class="text-white">{{orders_count}}</h4>
+                            <a href="#" class="text-white">View Orders </a>
+                        </div>
+                    </div>
+                </div>
+                {% comment %} <div class="col-6">
+                    <div class="card bg-dark" style="border-color:#A32CC4;">
+                        <div class="card-body">
+                            {% if user_profile.profile_picture %}
+                                <img class="rounded-circle shadow-1-strong me-2"
+                                src="{{user_profile.profile_picture.url}}" alt="avatar" width="60"
+                                height="60" />
+                            {% else %}
+                                <img class="rounded-circle shadow-1-strong me-3"
+                                src="{% static 'assets/img/profile-picture.png' %}" alt="avatar" width="60"
+                                height="60" />
+                            {% endif %}
+                            <p class="text-white">{{user.email}}</p>
+                            <p class="text-white">{{user_profile.phone_number}}</p>
+                        </div>
+                    </div>
+                </div> {% endcomment %}
+            </div> <!-- row.// -->
+        </div> <!-- card-body .// -->
+        </article> <!-- order-group.// --> 
+    </main>
+</div> <!-- row.// -->
+</div>
+
+
+</section>
+{% endblock content %}

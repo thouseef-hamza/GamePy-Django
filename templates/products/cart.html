@@ -1,0 +1,107 @@
+{% extends 'products/base.html' %}
+{% load static %}
+{% block title %}Game Py - Cart{% endblock title %}
+{% block content %}
+<div class="container-fluid">
+{% if not cart_items %}  
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card" style="background-color:#1d1d1d;">
+                <div class="card-header">
+                    <h5 class="text-white">Cart</h5>
+                </div>
+                <div class="card-body cart">
+                    <div class="col-sm-12 empty-cart-cls text-center">
+                        <img src="https://i.imgur.com/dCdflKN.png" width="130" height="130" class="img-fluid mb-4 mr-3">
+                        <h3 class="text-white"><strong>Your Cart is Empty</strong></h3>
+                        <h4 class="text-white">Add something to make me happy :)</h4>
+                        <a href="{% url 'homePage' %}" style="color:#A32CC4;border-color:#A32CC4;" class="btn cart-btn-transform m-3" data-abc="true">continue shopping</a>
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <aside class="col-lg-9">
+            <div style="border-radius:0px;" class="card bg-dark"> 
+                <div class="table-responsive bg-dark">
+                    <table class="table table-borderless table-shopping-cart">
+                        <thead class="text-muted">
+                            <tr class="small text-uppercase">
+                                <th scope="col">Product</th>
+                                <th scope="col" width="150">Quantity</th>
+                                <th scope="col" width="160">Price</th>
+                                <th scope="col" class="text-right d-none d-md-block" width="40"></th>
+                            </tr>
+                        </thead>
+                        {% for cart_item in cart_items %}
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <figure class="itemside align-items-center">
+                                        <div class="aside"><a href="{{cart_item.product.get_url}}" ><img src={{ cart_item.product.images.url }} class="img-sm"></a></div>
+                                        <figcaption class="info"><b> <a href="{{cart_item.product.get_url}}" class="title text-white" data-abc="true">{{ cart_item.product.product_name }}</a></b>
+                                        </figcaption>
+                                    </figure>
+                                </td>
+                                <td> 
+                                    <div class="col"> 
+                                        <div class="input-group input-spinner">
+                                            <div class="input-group-prepend me-1 ">
+                                            <a href="{% url 'remove_cart' cart_item.product.id cart_item.id %}" class="btn btn-buy text-white" type="button" id="button-plus"> <i class="fa fa-minus"></i></a>
+                                            </div>
+                                            <input type="text" class="form-control bg-dark text-white"  value="{{ cart_item.quantity }}">
+                                            <div class="input-group-append">
+                                            <a href="{% url 'add_cart' cart_item.product.id %}" class="btn btn-buy text-white" type="button" id="button-minus"> <i class="fa fa-plus"></i></a>
+                                            </div>
+                                        </div> <!-- input-group.// -->
+                                    </div> <!-- col.// -->
+                                </td> 
+                                <td>
+                                    <div class="price-wrap"> <var class="price text-white">&#8377; {{ cart_item.sub_total }}</var> <small class="text-muted">&#8377; {{ cart_item.product.price }} each</small> </div>
+                                </td>
+                                <td class="text-right d-none d-md-block"><!-- <a data-original-title="Save to Wishlist" title="" href="" class="btn btn-light" data-toggle="tooltip" data-abc="true"><i class="fa fa-heart"></i>--><a href="{% url 'remove_cart_item' cart_item.product.id cart_item.id %}" class="btn btn-light" data-abc="true" onclick="return confirm('Are You Sure Want To Delete This Item?')"> Remove</a> </td>
+                            </tr>
+                        </tbody>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+        </aside>
+        <aside class="col-lg-3">
+            {% comment %} <div class="card mb-3" style="border-radius:0px;">
+                <div class="card-body">
+                    <form>
+                        <div class="form-group"> <label>Have coupon?</label>
+                            <div class="input-group"> <input type="text" class="form-control coupon" name="" placeholder="Coupon code"> <span class="input-group-append"> <button class="btn btn-primary btn-apply coupon">Apply</button> </span> </div>
+                        </div>
+                    </form>
+                </div>
+            </div> {% endcomment %}
+            <div class="card bg-dark" style="border-radius:0px;">
+                <div class="card-body bg-dark">
+                    <dl class="dlist-align text-white">
+                        <dt>Total price: </dt>
+                        <dd class="text-right text-white">&#8377; {{total}}</dd>
+                    </dl>
+                    <dl class="dlist-align text-white">
+                        <dt>Tax:</dt>
+                        <dd class="text-left text-danger ms-5">&#8377; {{tax}}</dd>
+                    </dl>
+                    <hr class="text-white"/>
+                    <dl class="dlist-align text-white">
+                        <dt>Total:</dt>
+                        <dd class="text-right text-white b ms-4"><strong> &#8377; {{grand_total}}</strong></dd>
+                    </dl>
+                    <div class="d-grid gap-2">
+                        <button class="btn me-md-2 bg-dark" type="button" style="border:1px solid #a32cc4;"><a href="{% url 'homePage' %}" style="color:#a32cc4;">Continue Shopping</a></button>
+                        <button class="btn me-md-2 text-white" type="button" style="border:1px solid #a32cc4;"><a href="{% url 'checkout' %}" style="color:#a32cc4;">Check Out</a></button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+{% endif %}      
+</div>
+{% endblock content %}

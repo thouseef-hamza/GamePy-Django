@@ -1,0 +1,172 @@
+{% extends 'products/base.html' %}
+{% block title %}GamePy{% endblock title %}
+{% load static %}
+{% block content %}
+<h3 class="ms-3 text-white text-center">Order Review And Payment</h3>
+<div class="container-fluid">
+    <div class="row">
+        <aside class="col-lg-8 ">
+            <div style="border-radius:0px;" class="card bg-dark"> 
+                <h5 class="card-header text-white">Billing Address</h5>
+                <div class="card-body text-muted">
+                    <p class="card-text mb-0">{{order.first_name | capfirst}} {{order.last_name|capfirst}}</p>
+                    <p class="card-text mb-0">{{order.full_address}}</p>
+                    <p class="card-text mb-0">{{order.city}},{{order.state}}</p>
+                    <p class="card-text mb-0">{{order.country}}</p>
+                    <p class="card-text mb-0">{{order.email}}</p>
+                    <p class="card-text mb-0">{{order.phone}}</p>
+                    {% if order.order_note %}
+                       <b class="text-muted">Order Note : </b> {{order.order_note}}
+                    {% endif %}
+                </div>
+            </div>
+            <div style="border-radius:0px;" class="card mt-2 bg-dark"> 
+                <h5 class="card-header bg-dark text-white">Review Products</h5>
+                <div class="card-body  bg-dark">
+                    <div class="table-responsive bg-dark">
+                        <table class="table table-borderless table-shopping-cart">
+                            <thead class="text-muted">
+                                <tr class="small text-uppercase">
+                                    <th scope="col">Product</th>
+                                    <th scope="col" width="160">Quantity</th>
+                                    <th scope="col" width="100">Price</th>
+                                    <th scope="col" class="text-right d-none d-md-block" width="40"></th>
+                                </tr>
+                            </thead>
+                            {% for cart_item in cart_items %}
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <figure class="itemside align-items-center">
+                                            <div class="aside"><a href="{{cart_item.product.get_url}}" ><img src="{{ cart_item.product.images.url}}" class="img-sm"></a></div>
+                                            <figcaption class="info"> <a href="{{cart_item.product.get_url}}" class="title text-white" data-abc="true">{{ cart_item.product.product_name }}</a>
+                                            </figcaption>
+                                        </figure>
+                                    </td>
+                                    <td> 
+                                        <div class="d-grid justcol text-white"> 
+                                            <label for="">{{cart_item.quantity}}</label>
+                                        </div>
+                                    </td> 
+                                    <td>
+                                        <div class="price-wrap"> <var class="price text-white">&#8377; {{ cart_item.sub_total }}</var> <small class="text-muted">&#8377; {{ cart_item.product.price }} each</small> </div>
+                                    </td>
+                                    {% comment %} <td class="text-right d-none d-md-block"><!-- <a data-original-title="Save to Wishlist" title="" href="" class="btn btn-light" data-toggle="tooltip" data-abc="true"><i class="fa fa-heart"></i>--><a href="{% url 'remove_cart_item' cart_item.product.id %}" class="btn btn-light" data-abc="true"> Remove</a> </td> {% endcomment %}
+                                </tr>
+                            </tbody>
+                            {% endfor %}
+                        </table>
+                </div>
+            </div>
+        </aside>
+        <aside class="col-lg-4">
+            {% comment %} <div class="card mb-3" style="border-radius:0px;">
+                <div class="card-body">
+                    <form>
+                        <div class="form-group"> <label>Have coupon?</label>
+                            <div class="input-group"> <input type="text" class="form-control coupon" name="" placeholder="Coupon code"> <span class="input-group-append"> <button class="btn btn-primary btn-apply coupon">Apply</button> </span> </div>
+                        </div>
+                    </form>
+                </div>
+            </div> {% endcomment %}
+            <div class="card bg-dark" style="border-radius:0px;">
+                <div class="card-body">
+                    <dl class="dlist-align text-white">
+                        <dt>Total price: </dt>
+                        <dd class="text-right text-white">&#8377; {{total}}</dd>
+                    </dl>
+                    <dl class="dlist-align text-white">
+                        <dt>Tax:</dt>
+                        <dd class="text-left text-danger ms-5">&#8377; {{tax}}</dd>
+                    </dl>
+                    <hr class="text-white"/>
+                    <dl class="dlist-align text-white">
+                        <dt>Total:</dt>
+                        <dd class="text-right text-white b ms-4"><strong class="text-success"> &#8377; {{grand_total}}</strong></dd>
+                    </dl>
+                    <div id="paypal-button-container">
+                      
+                    </div>
+                </div>
+            </div>
+            
+        </aside>
+ 
+    </div>
+</div>
+<script>
+
+	function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+	var amount = "{{ grand_total }}"
+	var url = "{% url 'payments' %}"
+	var csrftoken = getCookie('csrftoken');
+	var orderID = "{{order.order_number}}"
+	var payment_method = 'PayPal'
+	var redirect_url = "{% url 'order_complete' %}"
+	// Render the PayPal button into #paypal-button-container
+	paypal.Buttons({
+
+		style: {
+			color: 'gold',
+			shape: 'rect',
+			label: 'pay',
+			height: 40
+		},
+
+		// Set up the transaction
+		createOrder: function(data, actions) {
+			return actions.order.create({
+				purchase_units: [{
+					amount: {
+						value: amount,
+					}
+				}]
+			});
+		},
+
+		// Finalize the transaction
+		onApprove: function(data, actions) {
+			return actions.order.capture().then(function(details) {
+				// Show a success message to the buyer
+				console.log(details);
+				sendData();
+				function sendData(){
+					fetch(url, {
+						method : "POST",
+						headers: {
+							"Content-type": "application/json",
+							"X-CSRFToken": csrftoken,
+						},
+						body: JSON.stringify({
+							orderID: orderID,
+							transID: details.id,
+							payment_method: payment_method,
+							status: details.status,
+						}),
+					})
+				    .then((response) => response.json())
+				    .then((data) => {
+						window.location.href = redirect_url + '?order_number='+data.order_number+'&payment_id='+data.transID;
+					});
+				}
+			});
+		} 
+	}).render('#paypal-button-container');
+</script>
+
+{% endblock %}
